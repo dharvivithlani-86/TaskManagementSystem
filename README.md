@@ -209,16 +209,3 @@ Test coverage includes:
 3. Execute **Login as Admin** or **Login as Manager**. The collection contains automated test scripts that automatically save the issued JWT token into the `token` environment variable for subsequent requests!
 
 ---
-
-## 📊 Evaluation Criteria Compliance Matrix
-
-| Criterion | Points | Implementation in Solution |
-| :--- | :---: | :--- |
-| **Backend API Design & Auth** | 20 | REST API in .NET 10, JWT Bearer authentication, claims authorization, session expiry handling, RFC 7807 global exception middleware, and Serilog logging. |
-| **Database Design & Relations** | 15 | SQL Server with EF Core 10, `BaseEntity` common audit properties (`CreatedAt`, `CreatedBy`, `UpdatedAt`, `UpdatedBy`, `IsDeleted`), soft delete filters, and relational constraints. |
-| **Frontend UI & UX** | 15 | React 19 with Vite, TypeScript, and Tailwind CSS. Kanban board, data tables, metrics dashboard, slide-over comment threads, responsive layout, and toast notifications. |
-| **Role-Based Access & Logic** | 10 | Strict separation between Admin, Manager, and User capabilities across endpoints and UI routes. |
-| **Code Quality & Modularity** | 10 | Centralized `AppMessages.cs` (no hardcoded string literals), clean separation of concerns, dependency injection, and clean architecture principles. |
-| **Testing (Unit / Integration)** | 10 | Automated xUnit test suite with FluentAssertions and InMemory EF Core. |
-| **DevOps & CI/CD** | 10 | Multi-stage Dockerfiles, `docker-compose.yml`, and GitHub Actions CI workflow (`.github/workflows/ci.yml`). |
-| **Documentation & Deliverables**| 10 | Detailed README, Swagger OpenAPI documentation, and pre-configured Postman collection with environments and test scripts. |
