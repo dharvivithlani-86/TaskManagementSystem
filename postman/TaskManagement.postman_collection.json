@@ -1,8 +1,8 @@
 {
   "info": {
-    "name": "Team Task Management System API",
-    "_postman_id": "8f5a438e-4a67-4e78-bc5a-e325062a488e",
-    "description": "Comprehensive Postman collection for the Role-Based Team Task Management System built with .NET 10 and SQL Server.",
+    "_postman_id": "a860d7aa-dc7c-41f0-a563-c887c5c0715a",
+    "name": "Task Management System API",
+    "description": "Comprehensive Postman API collection for the Role-Based Team Task Management System built with .NET 10 Web API and EF Core 10.\n\n### Authorization\nAll endpoints except `/api/auth/login` and `/api/auth/register` require a Bearer token.\n\nExecuting any Login request will **automatically capture and save** the issued JWT token into the `{{token}}` environment variable.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -19,7 +19,7 @@
                   "var jsonData = pm.response.json();",
                   "if (jsonData.success && jsonData.data && jsonData.data.token) {",
                   "    pm.environment.set(\"token\", jsonData.data.token);",
-                  "    console.log(\"Admin token saved to environment.\");",
+                  "    console.log(\"Admin JWT token automatically saved to environment variable 'token'.\");",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -40,10 +40,18 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates as System Administrator and saves JWT token to environment."
+          },
+          "response": []
         },
         {
           "name": "Login as Manager",
@@ -55,7 +63,7 @@
                   "var jsonData = pm.response.json();",
                   "if (jsonData.success && jsonData.data && jsonData.data.token) {",
                   "    pm.environment.set(\"token\", jsonData.data.token);",
-                  "    console.log(\"Manager token saved.\");",
+                  "    console.log(\"Manager JWT token automatically saved to environment variable 'token'.\");",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -76,13 +84,21 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates as Lead Manager and saves JWT token to environment."
+          },
+          "response": []
         },
         {
-          "name": "Login as User",
+          "name": "Login as Regular User",
           "event": [
             {
               "listen": "test",
@@ -91,7 +107,7 @@
                   "var jsonData = pm.response.json();",
                   "if (jsonData.success && jsonData.data && jsonData.data.token) {",
                   "    pm.environment.set(\"token\", jsonData.data.token);",
-                  "    console.log(\"User token saved.\");",
+                  "    console.log(\"User JWT token automatically saved to environment variable 'token'.\");",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -112,13 +128,35 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates as Team Member (User) and saves JWT token to environment."
+          },
+          "response": []
         },
         {
-          "name": "Register User",
+          "name": "Register New User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.token) {",
+                  "    pm.environment.set(\"token\", jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -129,31 +167,52 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"David Kim\",\n  \"email\": \"david.kim@example.com\",\n  \"password\": \"Password@123\",\n  \"role\": \"User\"\n}"
+              "raw": "{\n  \"fullName\": \"David Kim\",\n  \"email\": \"david.kim@tms.com\",\n  \"password\": \"Password@123\",\n  \"role\": \"User\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Registers a new user account with BCrypt hashed password."
+          },
+          "response": []
         },
         {
-          "name": "Get Current User (Me)",
+          "name": "Get Current User Profile (/me)",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "me"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Returns current logged in user details and roles."
+          },
+          "response": []
         }
       ]
     },
@@ -161,54 +220,99 @@
       "name": "2. Tasks",
       "item": [
         {
-          "name": "Get Tasks (Filtered & Paged)",
+          "name": "Get All Tasks (Filtered & Paged)",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/tasks?pageIndex=1&pageSize=10&status=InProgress&priority=Urgent",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tasks"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tasks"
+              ],
               "query": [
-                { "key": "pageIndex", "value": "1" },
-                { "key": "pageSize", "value": "10" },
-                { "key": "status", "value": "InProgress" },
-                { "key": "priority", "value": "Urgent" }
+                {
+                  "key": "pageIndex",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "InProgress",
+                  "description": "ToDo | InProgress | Done"
+                },
+                {
+                  "key": "priority",
+                  "value": "Urgent",
+                  "description": "Low | Medium | High | Urgent"
+                }
               ]
-            }
-          }
+            },
+            "description": "Returns tasks scoped by role with filtering, search, sorting, and pagination."
+          },
+          "response": []
         },
         {
-          "name": "Get Task By Id",
+          "name": "Get Task By ID",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/tasks/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tasks", "1"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "1"
+              ]
+            },
+            "description": "Returns single task details with comment count."
+          },
+          "response": []
         },
         {
-          "name": "Create Task (Manager/Admin)",
+          "name": "Create Task (Admin/Manager)",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -216,24 +320,37 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Security Audit & Vulnerability Assessment\",\n  \"description\": \"Perform complete dependency check and static code analysis.\",\n  \"priority\": \"High\",\n  \"dueDate\": \"2026-09-15T18:00:00Z\",\n  \"teamId\": 1,\n  \"assignedToUserId\": 3\n}"
+              "raw": "{\n  \"title\": \"Security & Vulnerability Audit\",\n  \"description\": \"Perform static code analysis and dependency audit for OWASP top 10.\",\n  \"priority\": \"High\",\n  \"dueDate\": \"2026-09-15T18:00:00Z\",\n  \"teamId\": 1,\n  \"assignedToUserId\": 3\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/tasks",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tasks"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tasks"
+              ]
+            },
+            "description": "Creates a new task and triggers assignment notification to assignee."
+          },
+          "response": []
         },
         {
           "name": "Update Task Status (Assignee/Manager/Admin)",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PATCH",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -245,27 +362,49 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/tasks/2/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tasks", "2", "status"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "2",
+                "status"
+              ]
+            },
+            "description": "Updates status (ToDo -> InProgress -> Done) and triggers status update notification."
+          },
+          "response": []
         },
         {
           "name": "Delete Task (Soft Delete)",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/tasks/4",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tasks", "4"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "4"
+              ]
+            },
+            "description": "Soft deletes task (sets IsDeleted=true in database)."
+          },
+          "response": []
         }
       ]
     },
@@ -273,31 +412,49 @@
       "name": "3. Teams",
       "item": [
         {
-          "name": "Get Teams",
+          "name": "Get All Teams",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/teams",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "teams"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams"
+              ]
+            },
+            "description": "Returns list of teams with lead manager and member count."
+          },
+          "response": []
         },
         {
-          "name": "Create Team",
+          "name": "Create Team (Admin/Manager)",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -305,24 +462,37 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"DevOps & Cloud SRE\",\n  \"description\": \"Continuous integration, containerization, and monitoring operations.\"\n}"
+              "raw": "{\n  \"name\": \"DevOps & Cloud Infrastructure Squad\",\n  \"description\": \"Continuous integration, containerization, and deployment operations.\",\n  \"leadManagerId\": 2\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/teams",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "teams"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams"
+              ]
+            },
+            "description": "Creates a new team and assigns lead manager."
+          },
+          "response": []
         },
         {
-          "name": "Add Team Member",
+          "name": "Add Member to Team",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -334,10 +504,51 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/teams/1/members",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "teams", "1", "members"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams",
+                "1",
+                "members"
+              ]
+            },
+            "description": "Assigns user to team."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Member from Team",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/teams/1/members/4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams",
+                "1",
+                "members",
+                "4"
+              ]
+            },
+            "description": "Removes member from team."
+          },
+          "response": []
         }
       ]
     },
@@ -347,29 +558,49 @@
         {
           "name": "Get Task Comments",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/tasks/2/comments",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tasks", "2", "comments"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "2",
+                "comments"
+              ]
+            },
+            "description": "Returns chronological comment thread for task."
+          },
+          "response": []
         },
         {
           "name": "Add Task Comment",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
@@ -377,14 +608,23 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"content\": \"Completed unit test coverage for status changes.\"\n}"
+              "raw": "{\n  \"content\": \"Added unit tests for status transition logic and verified authorization policy.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/tasks/2/comments",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tasks", "2", "comments"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "2",
+                "comments"
+              ]
+            },
+            "description": "Posts a new comment to the task."
+          },
+          "response": []
         }
       ]
     },
@@ -394,36 +634,61 @@
         {
           "name": "Get User Notifications",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/notifications",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "notifications"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ]
+            },
+            "description": "Returns list of in-app notifications for authenticated user."
+          },
+          "response": []
         },
         {
           "name": "Mark All Notifications Read",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/notifications/read-all",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "notifications", "read-all"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "read-all"
+              ]
+            },
+            "description": "Marks all user notifications as read."
+          },
+          "response": []
         }
       ]
     },
@@ -433,19 +698,66 @@
         {
           "name": "Get Dashboard Summary",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/summary",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "summary"]
-            }
-          }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "summary"
+              ]
+            },
+            "description": "Returns summary metrics (Total, ToDo, InProgress, Done, Overdue, Priority breakdown, Upcoming deadlines, Activity timeline)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "7. Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "description": "Returns active user list for dropdown assignment."
+          },
+          "response": []
         }
       ]
     }
