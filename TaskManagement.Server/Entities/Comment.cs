@@ -1,0 +1,12 @@
+namespace TaskManagement.Server.Entities;
+
+public class Comment : BaseEntity
+{
+    public int TaskItemId { get; set; }
+    public TaskItem TaskItem { get; set; } = null!;
+
+    public int UserId { get; set; }
+    public User User { get; set; } = null!;
+
+    public string Content { get; set; } = string.Empty;
+}

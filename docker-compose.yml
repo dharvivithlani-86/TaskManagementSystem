@@ -1,0 +1,46 @@
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: tms_sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong@Passw0rd!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourStrong@Passw0rd!' -Q 'SELECT 1' -C || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+    container_name: tms_api
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=database,1433;Database=TaskManagementDb;User Id=sa;Password=YourStrong@Passw0rd!;TrustServerCertificate=True;MultipleActiveResultSets=true;
+      - Jwt__Key=TaskManagementSystem_SuperSecretSecureJwtKey_2026_DotNet10!_EnterpriseGradeKey
+      - Jwt__Issuer=TaskManagementApi
+      - Jwt__Audience=TaskManagementClient
+    ports:
+      - "5128:80"
+
+  client:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.client
+    container_name: tms_client
+    depends_on:
+      - api
+    ports:
+      - "5173:80"
+
+volumes:
+  sqlserver_data:

@@ -1,0 +1,49 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  backend-build-test:
+    name: Build and Test .NET 10 API
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore TaskManagement.sln
+
+    - name: Build Solution
+      run: dotnet build TaskManagement.sln --no-restore -c Release
+
+    - name: Execute Unit Tests
+      run: dotnet test TaskManagement.Tests/TaskManagement.Tests.csproj --no-build --verbosity normal
+
+  frontend-build:
+    name: Build React 19 Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      working-directory: ./TaskManagement.Client
+      run: npm ci
+
+    - name: Build Frontend
+      working-directory: ./TaskManagement.Client
+      run: npm run build
